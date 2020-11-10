@@ -18,6 +18,7 @@
 		[Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend("Src Blend", Float) = 1
 		[Enum(UnityEngine.Rendering.BlendMode)] _DstBlend("Dst Blend", Float) = 0
 		[Enum(Off, 0, On, 1)] _ZWrite("Z Write", Float) = 1
+		[KeywordEnum(On, Clip, Dither, Off)] _Shadows("Shadows", Float) = 0
     }
 
     SubShader
@@ -33,10 +34,15 @@
 
             HLSLPROGRAM
 			#pragma target 3.5
-			 // shader_feature allow to enable/disable specific features by creating shader variants
+			// Shader_feature allow to enable/disable specific features by creating shader variants
             #pragma shader_feature _CLIPPING
             #pragma shader_feature _PREMULTIPLY_ALPHA
-            #pragma multi_compile_instancing
+			// Create shader variants for each PCF value
+			#pragma multi_compile _ _DIRECTIONAL_PCF3 _DIRECTIONAL_PCF5 _DIRECTIONAL_PCF7
+			// Create shader variants for each blend mode
+			#pragma multi_compile _ _CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER
+			// Generate instancing variants
+			#pragma multi_compile_instancing
 			#pragma vertex LitPassVertex
 			#pragma fragment LitPassFragment
 			#include "LitPass.hlsl"
@@ -54,7 +60,7 @@
 
 			HLSLPROGRAM
 			#pragma target 3.5
-			#pragma shader_feature _CLIPPING
+			#pragma shader_feature _ _SHADOWS_CLIP _SHADOWS_DITHER
 			#pragma multi_compile_instancing
 			#pragma vertex ShadowCasterPassVertex
 			#pragma fragment ShadowCasterPassFragment

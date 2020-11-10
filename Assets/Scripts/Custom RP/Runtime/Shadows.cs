@@ -9,7 +9,19 @@ public class Shadows
     static int cascadeCountId = Shader.PropertyToID("_CascadeCount");
     static int cascadeCullingSpheresId = Shader.PropertyToID("_CascadeCullingSpheres");
     static int cascadeDataId = Shader.PropertyToID("_CascadeData");
+    static int shadowAtlastSizeId = Shader.PropertyToID("_ShadowAtlasSize");
     static int shadowDistanceFadeId = Shader.PropertyToID("_ShadowDistanceFade");
+    static string[] directionalFilterKeywords =
+    {
+        "_DIRECTIONAL_PCF3",
+        "_DIRECTIONAL_PCF5",
+        "_DIRECTIONAL_PCF7",
+    };
+    static string[] cascadeBlendKeywords =
+    {
+        "_CASCADE_BLEND_SOFT",
+        "_CASCADE_BLEND_DITHER"
+    };
 
     // Cascade Shadow Mapping (CSM)
     const int maxCascades = 4;
@@ -21,7 +33,7 @@ public class Shadows
     {
         public int visibleLightIndex;
         public float slopeScaleBias;
-		public float nearPlaneOffset;
+        public float nearPlaneOffset;
     }
     const int maxShadowedDirectionalLightCount = 4;
     static Matrix4x4[] dirShadowMatrices = new Matrix4x4[maxShadowedDirectionalLightCount * maxCascades];
@@ -89,6 +101,9 @@ public class Shadows
         buffer.SetGlobalMatrixArray(dirShadowMatricesId, dirShadowMatrices);
         float f = 1f - settings.directional.cascadeFade;
         buffer.SetGlobalVector(shadowDistanceFadeId, new Vector4(1f / settings.maxDistance, 1f / settings.distanceFade, 1f / (1f - f * f)));
+        SetKeywords(directionalFilterKeywords, (int)settings.directional.filter - 1);
+        SetKeywords(cascadeBlendKeywords, (int)settings.directional.cascadeBlend - 1);
+        buffer.SetGlobalVector(shadowAtlastSizeId, new Vector4(atlasSize, 1f / atlasSize));
         buffer.EndSample(bufferName);
         ExecuteBuffer();
     }
@@ -100,6 +115,7 @@ public class Shadows
         int cascadeCount = settings.directional.cascadeCount;
         int tileOffset = index * cascadeCount;
         Vector3 ratios = settings.directional.CascadeRatios;
+        float cullingFactor = Mathf.Max(0f, 0.8f - settings.directional.cascadeFade);
 
         for (int i = 0; i < cascadeCount; i++)
         {
@@ -108,6 +124,7 @@ public class Shadows
                 out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix,
                 out ShadowSplitData splitData
             );
+            splitData.shadowCascadeBlendCullingFactor = cullingFactor;
             shadowSettings.splitData = splitData;
 
             // Get the culling data only once because it's will be the same for all lights
@@ -125,14 +142,31 @@ public class Shadows
         }
     }
 
+    void SetKeywords(string[] keywords, int enabledIndex)
+    {
+        for (int i = 0; i < keywords.Length; i++)
+        {
+            if (i == enabledIndex)
+            {
+                buffer.EnableShaderKeyword(keywords[i]);
+            }
+            else
+            {
+                buffer.DisableShaderKeyword(keywords[i]);
+            }
+        }
+    }
+
     void SetCascadeData(int index, Vector4 cullingSphere, float tileSize)
     {
         float texelSize = 2f * cullingSphere.w / tileSize;
+        float filterSize = texelSize * ((float)settings.directional.filter + 1f);
+        cullingSphere.w -= filterSize;
         cullingSphere.w *= cullingSphere.w;
         cascadeCullingSpheres[index] = cullingSphere;
         // x: inverse radius of sphere
         // y: minimum distance for the bias (to avoid shadow acne and peter panning)
-        cascadeData[index] = new Vector4(1f / cullingSphere.w, texelSize * 1.4142136f); // sqrt(2)
+        cascadeData[index] = new Vector4(1f / cullingSphere.w, filterSize * 1.4142136f); // sqrt(2)
     }
 
     Vector2 SetTileViewport(int index, int split, float tileSize)
@@ -186,7 +220,7 @@ public class Shadows
                 {
                     visibleLightIndex = visibleLightIndex,
                     slopeScaleBias = light.shadowBias,
-					nearPlaneOffset = light.shadowNearPlane
+                    nearPlaneOffset = light.shadowNearPlane
                 };
             return new Vector3(light.shadowStrength,
                                 settings.directional.cascadeCount * ShadowedDirectionalLightCount++,
