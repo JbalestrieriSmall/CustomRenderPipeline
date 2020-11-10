@@ -8,6 +8,7 @@ public class Shadows
     static int dirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices");
     static int cascadeCountId = Shader.PropertyToID("_CascadeCount");
     static int cascadeCullingSpheresId = Shader.PropertyToID("_CascadeCullingSpheres");
+    static int shadowDistanceFadeId = Shader.PropertyToID("_ShadowDistanceFade");
 
     // Cascade Shadow Mapping (CSM)
     const int maxCascades = 4;
@@ -81,6 +82,8 @@ public class Shadows
 		buffer.SetGlobalInt(cascadeCountId, settings.directional.cascadeCount);
 		buffer.SetGlobalVectorArray(cascadeCullingSpheresId, cascadeCullingSpheres);
         buffer.SetGlobalMatrixArray(dirShadowMatricesId, dirShadowMatrices);
+        float f = 1f - settings.directional.cascadeFade;
+		buffer.SetGlobalVector(shadowDistanceFadeId, new Vector4(1f / settings.maxDistance, 1f / settings.distanceFade, 1f / (1f - f * f)));
         buffer.EndSample(bufferName);
         ExecuteBuffer();
     }
