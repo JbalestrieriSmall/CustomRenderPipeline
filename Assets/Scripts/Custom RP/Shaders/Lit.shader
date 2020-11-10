@@ -24,6 +24,11 @@
 
     SubShader
     {
+		HLSLINCLUDE
+		#include "../ShaderLibrary/Common.hlsl"
+		#include "LitInput.hlsl"
+		ENDHLSL
+
 		Pass
         {
 			Tags
@@ -43,6 +48,8 @@
 			#pragma multi_compile _ _DIRECTIONAL_PCF3 _DIRECTIONAL_PCF5 _DIRECTIONAL_PCF7
 			// Create shader variants for each blend mode
 			#pragma multi_compile _ _CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER
+			// Create shader variants if lightmap is ON
+			#pragma multi_compile _ LIGHTMAP_ON
 			// Generate instancing variants
 			#pragma multi_compile_instancing
 			#pragma vertex LitPassVertex
@@ -67,6 +74,23 @@
 			#pragma vertex ShadowCasterPassVertex
 			#pragma fragment ShadowCasterPassFragment
 			#include "ShadowCasterPass.hlsl"
+			ENDHLSL
+		}
+
+		Pass
+		{
+			Tags
+			{
+				"LightMode" = "Meta"
+			}
+
+			Cull Off
+
+			HLSLPROGRAM
+			#pragma target 3.5
+			#pragma vertex MetaPassVertex
+			#pragma fragment MetaPassFragment
+			#include "MetaPass.hlsl"
 			ENDHLSL
 		}
 	}
