@@ -19,6 +19,7 @@
 		[Enum(UnityEngine.Rendering.BlendMode)] _DstBlend("Dst Blend", Float) = 0
 		[Enum(Off, 0, On, 1)] _ZWrite("Z Write", Float) = 1
 		[KeywordEnum(On, Clip, Dither, Off)] _Shadows("Shadows", Float) = 0
+		[Toggle(_RECEIVE_SHADOWS)] _ReceiveShadows("Receive Shadows", Float) = 1
     }
 
     SubShader
@@ -37,6 +38,7 @@
 			// Shader_feature allow to enable/disable specific features by creating shader variants
             #pragma shader_feature _CLIPPING
             #pragma shader_feature _PREMULTIPLY_ALPHA
+			#pragma shader_feature _RECEIVE_SHADOWS
 			// Create shader variants for each PCF value
 			#pragma multi_compile _ _DIRECTIONAL_PCF3 _DIRECTIONAL_PCF5 _DIRECTIONAL_PCF7
 			// Create shader variants for each blend mode
