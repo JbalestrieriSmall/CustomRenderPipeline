@@ -35,6 +35,7 @@
 			ENDHLSL
         }
 
+		// Pass for shadow, even if it's unlit, object can still cast shadow
 		Pass
 		{
 			Tags
@@ -54,6 +55,7 @@
 			ENDHLSL
 		}
 
+		// Pass for GI
 		Pass
 		{
 			Tags

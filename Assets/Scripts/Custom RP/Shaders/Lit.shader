@@ -58,6 +58,7 @@
 			ENDHLSL
         }
 
+		// Pass for shadow
 		Pass
 		{
 			Tags
@@ -77,6 +78,7 @@
 			ENDHLSL
 		}
 
+		// Pass for GI
 		Pass
 		{
 			Tags
