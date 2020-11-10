@@ -54,6 +54,7 @@ partial class CameraRenderer
 
 	partial void PrepareForSceneWindow()
 	{
+		// Allow to render UI
 		if (camera.cameraType == CameraType.SceneView)
 		{
 			ScriptableRenderContext.EmitWorldGeometryForSceneView(camera);

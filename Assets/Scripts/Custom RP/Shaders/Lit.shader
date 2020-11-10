@@ -42,6 +42,25 @@
 			#include "LitPass.hlsl"
 			ENDHLSL
         }
+
+		Pass
+		{
+			Tags
+			{
+				"LightMode" = "ShadowCaster"
+			}
+
+			ColorMask 0 // Disable color since we only need to render depth for shadows
+
+			HLSLPROGRAM
+			#pragma target 3.5
+			#pragma shader_feature _CLIPPING
+			#pragma multi_compile_instancing
+			#pragma vertex ShadowCasterPassVertex
+			#pragma fragment ShadowCasterPassFragment
+			#include "ShadowCasterPass.hlsl"
+			ENDHLSL
+		}
 	}
 
 	CustomEditor "CustomShaderGUI"
