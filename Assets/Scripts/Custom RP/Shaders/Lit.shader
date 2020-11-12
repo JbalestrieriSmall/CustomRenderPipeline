@@ -59,7 +59,9 @@
 			#pragma multi_compile _ _DIRECTIONAL_PCF3 _DIRECTIONAL_PCF5 _DIRECTIONAL_PCF7
 			// Create shader variants for each blend mode
 			#pragma multi_compile _ _CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER
-			// Create shader variants if lightmap is ON
+			// Create shader variants if shadow mask is enabled
+			#pragma multi_compile _ _SHADOW_MASK_ALWAYS _SHADOW_MASK_DISTANCE
+			// Create shader variants if lightmap is enabled
 			#pragma multi_compile _ LIGHTMAP_ON
 			// Generate instancing variants
 			#pragma multi_compile_instancing
