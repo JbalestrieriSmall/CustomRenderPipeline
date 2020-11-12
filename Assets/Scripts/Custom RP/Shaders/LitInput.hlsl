@@ -5,9 +5,11 @@
 TEXTURE2D(_BaseMap);
 TEXTURE2D(_MaskMap);
 TEXTURE2D(_EmissionMap);
+TEXTURE2D(_NormalMap);
 SAMPLER(sampler_BaseMap); // Same tiling and offset for previous maps
 
 TEXTURE2D(_DetailMap);
+TEXTURE2D(_DetailNormalMap);
 SAMPLER(sampler_DetailMap);
 
 // Per instance values
@@ -23,6 +25,8 @@ UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
 	UNITY_DEFINE_INSTANCED_PROP(float, _Fresnel)
 	UNITY_DEFINE_INSTANCED_PROP(float, _DetailAlbedo)
 	UNITY_DEFINE_INSTANCED_PROP(float, _DetailSmoothness)
+	UNITY_DEFINE_INSTANCED_PROP(float, _DetailNormalScale)
+	UNITY_DEFINE_INSTANCED_PROP(float, _NormalScale)
 UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
 
 #define INPUT_PROP(name) UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, name)
@@ -54,11 +58,30 @@ float4 GetBase(float2 baseUV, float2 detailUV = 0.0)
 {
 	float4 map = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, baseUV);
 	float4 color = INPUT_PROP(_BaseColor);
+
+	// Details
 	float detail = GetDetail(detailUV).r * INPUT_PROP(_DetailAlbedo);
 	float mask = GetMask(baseUV).b;
 	map.rgb = lerp(sqrt(map.rgb), detail < 0.0 ? 0.0 : 1.0, abs(detail) * mask);
 	map.rgb *= map.rgb;
+
 	return map * color;
+}
+
+float3 GetNormalTS(float2 baseUV, float2 detailUV = 0.0)
+{
+	float4 map = SAMPLE_TEXTURE2D(_NormalMap, sampler_BaseMap, baseUV);
+	float scale = INPUT_PROP(_NormalScale);
+	float3 normal = DecodeNormal(map, scale);
+
+	// Details
+	map = SAMPLE_TEXTURE2D(_DetailNormalMap, sampler_DetailMap, detailUV);
+	scale = INPUT_PROP(_DetailNormalScale) * GetMask(baseUV).b;
+	float3 detail = DecodeNormal(map, scale);
+	normal = BlendNormal(normal, detail);
+	//normal = BlendNormalRNM(normal, detail);
+
+	return normal;
 }
 
 float GetCutoff(float2 baseUV)
@@ -77,9 +100,12 @@ float GetSmoothness(float2 baseUV, float2 detailUV = 0.0)
 {
 	float smoothness = INPUT_PROP(_Smoothness);
 	smoothness *= GetMask(baseUV).a;
+
+	// Details
 	float detail = GetDetail(detailUV).b * INPUT_PROP(_DetailSmoothness);
 	float mask = GetMask(baseUV).b;
 	smoothness = lerp(smoothness, detail < 0.0 ? 0.0 : 1.0, abs(detail) * mask);
+
 	return smoothness;
 }
 
