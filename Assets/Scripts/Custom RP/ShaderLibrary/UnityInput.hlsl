@@ -11,6 +11,9 @@ CBUFFER_START(UnityPerDraw)
 	// Occlusion Probes
 	float4 unity_ProbesOcclusion;
 
+	// Reflection Probes
+	float4 unity_SpecCube0_HDR;
+
     // Lightmaps
 	float4 unity_LightmapST;
 	float4 unity_DynamicLightmapST;
