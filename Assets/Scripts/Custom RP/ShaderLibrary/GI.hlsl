@@ -2,6 +2,7 @@
 #define CUSTOM_GI_INCLUDED
 
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/EntityLighting.hlsl"
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/ImageBasedLighting.hlsl"
 
 // Lightmaps
 TEXTURE2D(unity_Lightmap);
@@ -28,9 +29,14 @@ SAMPLER(samplerunity_ShadowMask);
 TEXTURE3D_FLOAT(unity_ProbeVolumeSH);
 SAMPLER(samplerunity_ProbeVolumeSH);
 
+// Skybox as a cube map
+TEXTURECUBE(unity_SpecCube0);
+SAMPLER(samplerunity_SpecCube0);
+
 struct GI
 {
 	float3 diffuse;
+	float3 specular;
 	ShadowMask shadowMask;
 };
 
@@ -100,10 +106,19 @@ float4 SampleBakedShadows(float2 lightMapUV, Surface surfaceWS)
 #endif
 }
 
-GI GetGI(float2 lightMapUV, Surface surfaceWS)
+float3 SampleEnvironment(Surface surfaceWS, BRDF brdf)
+{
+	float3 uvw = reflect(-surfaceWS.viewDirection, surfaceWS.normal);
+	float mip = PerceptualRoughnessToMipmapLevel(brdf.perceptualRoughness);
+	float4 environment = SAMPLE_TEXTURECUBE_LOD(unity_SpecCube0, samplerunity_SpecCube0, uvw, mip);
+	return environment.rgb;
+}
+
+GI GetGI(float2 lightMapUV, Surface surfaceWS, BRDF brdf)
 {
 	GI gi;
 	gi.diffuse = SampleLightMap(lightMapUV) + SampleLightProbe(surfaceWS);
+	gi.specular = SampleEnvironment(surfaceWS, brdf);
 	gi.shadowMask.always = false;
 	gi.shadowMask.distance = false;
 	gi.shadowMask.shadows = 1.0;

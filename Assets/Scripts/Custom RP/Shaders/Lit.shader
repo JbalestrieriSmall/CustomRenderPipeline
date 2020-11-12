@@ -13,6 +13,7 @@
 		// Mettalic
 		_Metallic("Metallic", Range(0, 1)) = 0
 		_Smoothness("Smoothness", Range(0, 1)) = 0.5
+		_Fresnel("Fresnel", Range(0, 1)) = 1
 
 		// Emission
 		[NoScaleOffset] _EmissionMap("Emission", 2D) = "white" {}
