@@ -11,6 +11,7 @@
 		[Toggle(_CLIPPING)] _Clipping("Alpha Clipping", Float) = 0
 
 		// MODS (Metallic in R, Occlusion in G, Detail in B, Smoothness in A)
+		[Toggle(_MASK_MAP)] _MaskMapToggle("Mask Map", Float) = 0
 		[NoScaleOffset]_MaskMap("Mask (MODS)", 2D) = "white" {}
 		_Metallic("Metallic", Range(0, 1)) = 0
 		_Occlusion("Occlusion", Range(0, 1)) = 1
@@ -18,6 +19,7 @@
 		_Fresnel("Fresnel", Range(0, 1)) = 1
 
 		// Normals
+		[Toggle(_NORMAL_MAP)] _NormalMapToggle("Normal Map", Float) = 0
 		[NoScaleOffset] _NormalMap("Normals", 2D) = "bump" {}
 		_NormalScale("Normal Scale", Range(0, 1)) = 1
 
@@ -26,6 +28,7 @@
 		[HDR] _EmissionColor("Emission", Color) = (0.0, 0.0, 0.0, 0.0)
 
 		// Details (Albedo in R, Smoothness in B, normal vector XY in AG)
+		[Toggle(_DETAIL_MAP)] _DetailMapToggle ("Detail Maps", Float) = 0
 		_DetailMap("Details", 2D) = "linearGrey" {}
 		[NoScaleOffset] _DetailNormalMap("Detail Normals", 2D) = "bump" {}
 		_DetailAlbedo("Detail Albedo", Range(0, 1)) = 1
@@ -69,6 +72,9 @@
             #pragma shader_feature _CLIPPING
             #pragma shader_feature _PREMULTIPLY_ALPHA
 			#pragma shader_feature _RECEIVE_SHADOWS
+			#pragma shader_feature _NORMAL_MAP
+			#pragma shader_feature _MASK_MAP
+			#pragma shader_feature _DETAIL_MAP
 			// Create shader variants for each PCF value
 			#pragma multi_compile _ _DIRECTIONAL_PCF3 _DIRECTIONAL_PCF5 _DIRECTIONAL_PCF7
 			// Create shader variants for each blend mode
