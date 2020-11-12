@@ -10,14 +10,21 @@
 		_Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
 		[Toggle(_CLIPPING)] _Clipping("Alpha Clipping", Float) = 0
 
-		// Mettalic
+		// MODS (Metallic in R, Occlusion in G, Detail in B, Smoothness in A)
+		[NoScaleOffset]_MaskMap("Mask (MODS)", 2D) = "white" {}
 		_Metallic("Metallic", Range(0, 1)) = 0
+		_Occlusion("Occlusion", Range(0, 1)) = 1
 		_Smoothness("Smoothness", Range(0, 1)) = 0.5
 		_Fresnel("Fresnel", Range(0, 1)) = 1
 
 		// Emission
 		[NoScaleOffset] _EmissionMap("Emission", 2D) = "white" {}
 		[HDR] _EmissionColor("Emission", Color) = (0.0, 0.0, 0.0, 0.0)
+
+		// Details (Albedo in R, Smoothness in B, normal vector XY in AG)
+		_DetailMap("Details", 2D) = "linearGrey" {}
+		_DetailAlbedo("Detail Albedo", Range(0, 1)) = 1
+		_DetailSmoothness("Detail Smoothness", Range(0, 1)) = 1
 
 		// Transparency
 		[Toggle(_PREMULTIPLY_ALPHA)] _PremulAlpha("Premultiply Alpha", Float) = 0
