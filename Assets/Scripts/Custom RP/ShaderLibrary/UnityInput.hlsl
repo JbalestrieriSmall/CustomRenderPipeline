@@ -8,6 +8,10 @@ CBUFFER_START(UnityPerDraw)
 	float4 unity_LODFade;
     real4 unity_WorldTransformParams;
 
+	// Per object light indices
+	real4 unity_LightData;
+	real4 unity_LightIndices[2];
+
 	// Occlusion Probes
 	float4 unity_ProbesOcclusion;
 
@@ -32,7 +36,6 @@ CBUFFER_START(UnityPerDraw)
 	float4x4 unity_ProbeVolumeWorldToObject;
 	float4 unity_ProbeVolumeSizeInv;
 	float4 unity_ProbeVolumeMin;
-
 CBUFFER_END
 
 float4x4 unity_MatrixVP;

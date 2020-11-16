@@ -85,6 +85,8 @@
 			#pragma multi_compile _ LIGHTMAP_ON
 			// Create shader variants for LOD
 			#pragma multi_compile _ LOD_FADE_CROSSFADE
+			// Create shader variants for per object lighting
+			#pragma multi_compile _ _LIGHTS_PER_OBJECT
 			// Generate instancing variants
 			#pragma multi_compile_instancing
 			#pragma vertex LitPassVertex
