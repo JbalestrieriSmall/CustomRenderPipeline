@@ -13,6 +13,7 @@ public class Shadows
     static int shadowDistanceFadeId = Shader.PropertyToID("_ShadowDistanceFade");
 	static int otherShadowAtlasId = Shader.PropertyToID("_OtherShadowAtlas");
 	static int otherShadowMatricesId = Shader.PropertyToID("_OtherShadowMatrices");
+	static int otherShadowTilesId = Shader.PropertyToID("_OtherShadowTiles");
 	static int shadowPancakingId = Shader.PropertyToID("_ShadowPancaking");
 
     // Keywords
@@ -67,6 +68,7 @@ public class Shadows
     const int maxShadowedOtherLightCount  = 16;
 	static Matrix4x4[] otherShadowMatrices = new Matrix4x4[maxShadowedOtherLightCount];
 	ShadowedOtherLight[] shadowedOtherLights = new ShadowedOtherLight[maxShadowedOtherLightCount];
+	static Vector4[] otherShadowTiles = new Vector4[maxShadowedOtherLightCount];
     int shadowedOtherLightCount;
 
 	Vector4 atlasSizes;
@@ -223,6 +225,7 @@ public class Shadows
         }
 
         buffer.SetGlobalMatrixArray(otherShadowMatricesId, otherShadowMatrices);
+		buffer.SetGlobalVectorArray(otherShadowTilesId, otherShadowTiles);
         SetKeywords(otherFilterKeywords, (int)settings.other.filter - 1);
         buffer.EndSample(bufferName);
         ExecuteBuffer();
@@ -234,12 +237,26 @@ public class Shadows
 		var shadowSettings = new ShadowDrawingSettings(cullingResults, light.visibleLightIndex);
 		cullingResults.ComputeSpotShadowMatricesAndCullingPrimitives(light.visibleLightIndex, out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix, out ShadowSplitData splitData);
 		shadowSettings.splitData = splitData;
+
+        // Set the bias to avoid shadow acne
+        float texelSize = 2f / (tileSize * projectionMatrix.m00);
+		float filterSize = texelSize * ((float)settings.other.filter + 1f);
+		float bias = light.normalBias * filterSize * 1.4142136f;
+		SetOtherTileData(index, bias);
+
 		otherShadowMatrices[index] = ConvertToAtlasMatrix(projectionMatrix * viewMatrix, SetTileViewport(index, split, tileSize), split);
 		buffer.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
 		buffer.SetGlobalDepthBias(0f, light.slopeScaleBias);
 		ExecuteBuffer();
 		context.DrawShadows(ref shadowSettings);
 		buffer.SetGlobalDepthBias(0f, 0f);
+	}
+
+	void SetOtherTileData(int index, float bias)
+    {
+		Vector4 data = Vector4.zero;
+		data.w = bias;
+		otherShadowTiles[index] = data;
 	}
 
     void SetKeywords(string[] keywords, int enabledIndex)
