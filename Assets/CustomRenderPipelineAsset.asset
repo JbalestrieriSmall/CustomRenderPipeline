@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   useDynamicBatching: 0
   useGPUInstancing: 1
-  useLightsPerObject: 1
+  useLightsPerObject: 0
   useSRPBatcher: 1
   shadows:
     maxDistance: 65.85
@@ -28,3 +28,6 @@ MonoBehaviour:
       cascadeRatio3: 0.664
       cascadeFade: 0.143
       cascadeBlend: 1
+    other:
+      atlasSize: 1024
+      filter: 0

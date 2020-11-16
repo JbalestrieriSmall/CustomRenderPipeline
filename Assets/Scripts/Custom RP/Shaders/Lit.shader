@@ -75,7 +75,7 @@
 			#pragma shader_feature _NORMAL_MAP
 			#pragma shader_feature _MASK_MAP
 			#pragma shader_feature _DETAIL_MAP
-			// Create shader variants for each PCF value
+			// Create shader variants for each PCF value for directionnal shadows
 			#pragma multi_compile _ _DIRECTIONAL_PCF3 _DIRECTIONAL_PCF5 _DIRECTIONAL_PCF7
 			// Create shader variants for each blend mode
 			#pragma multi_compile _ _CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER
@@ -87,6 +87,8 @@
 			#pragma multi_compile _ LOD_FADE_CROSSFADE
 			// Create shader variants for per object lighting
 			#pragma multi_compile _ _LIGHTS_PER_OBJECT
+			// Create shader variants for each PCF value for other shadows
+			#pragma multi_compile _ _OTHER_PCF3 _OTHER_PCF5 _OTHER_PCF7
 			// Generate instancing variants
 			#pragma multi_compile_instancing
 			#pragma vertex LitPassVertex
